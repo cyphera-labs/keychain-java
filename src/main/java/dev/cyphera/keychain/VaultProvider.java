@@ -1,9 +1,9 @@
 package dev.cyphera.keychain;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultConfig;
-import com.bettercloud.vault.VaultException;
-import com.bettercloud.vault.response.LogicalResponse;
+import io.github.jopenlibs.vault.Vault;
+import io.github.jopenlibs.vault.VaultConfig;
+import io.github.jopenlibs.vault.VaultException;
+import io.github.jopenlibs.vault.response.LogicalResponse;
 
 import java.util.Base64;
 import java.util.HexFormat;
