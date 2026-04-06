@@ -64,11 +64,25 @@ public final class VaultProvider implements KeyProvider {
             if (response.getRestResponse().getStatus() == 404) {
                 throw new KeyNotFoundException("Key not found: " + ref);
             }
-            Map<String, String> data = response.getData();
-            if (data == null || data.isEmpty()) {
+            Map<String, String> outerData = response.getData();
+            if (outerData == null || outerData.isEmpty()) {
                 throw new KeyNotFoundException("Key not found: " + ref);
             }
-            return data;
+            // KV v2 nests secret data under "data" key; the outer map also has "metadata"
+            // The jopenlibs driver flattens the JSON into string values, so "data" contains
+            // the JSON string of the inner map. Try to parse it if present.
+            if (outerData.containsKey("data") && !outerData.containsKey("material")) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> innerData = new com.fasterxml.jackson.databind.ObjectMapper()
+                            .readValue(outerData.get("data"),
+                                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, String>>() {});
+                    return innerData;
+                } catch (Exception ignored) {
+                    // Fall through to outer data if parsing fails
+                }
+            }
+            return outerData;
         } catch (VaultException e) {
             throw new KeyNotFoundException("Key not found: " + ref, e);
         }
