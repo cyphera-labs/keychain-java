@@ -55,46 +55,51 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- AWS KMS -->
+        <!-- AWS KMS (optional — add to your project if using AwsKmsProvider) -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>kms</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>url-connection-client</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.3.1</version>
+            <optional>true</optional>
         </dependency>
 
-        <!-- GCP Cloud KMS -->
+        <!-- GCP Cloud KMS (optional — add to your project if using GcpKmsProvider) -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-kms</artifactId>
+            <optional>true</optional>
         </dependency>
 
-        <!-- Azure Key Vault -->
+        <!-- Azure Key Vault (optional — add to your project if using AzureKvProvider) -->
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-security-keyvault-keys</artifactId>
             <version>4.8.2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-identity</artifactId>
             <version>1.13.0</version>
+            <optional>true</optional>
         </dependency>
 
-        <!-- HashiCorp Vault -->
+        <!-- HashiCorp Vault (optional — add to your project if using VaultProvider) -->
         <dependency>
             <groupId>io.github.jopenlibs</groupId>
             <artifactId>vault-java-driver</artifactId>
             <version>5.4.0</version>
-        </dependency>
-
-        <!-- Required by AWS SDK HTTP client at runtime -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.3.1</version>
+            <optional>true</optional>
         </dependency>
 
         <!-- Test dependencies -->

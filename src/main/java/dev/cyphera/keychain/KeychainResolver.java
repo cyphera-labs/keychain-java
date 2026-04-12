@@ -23,17 +23,16 @@ public final class KeychainResolver {
             "default"
         );
 
-        KeyProvider provider = createProvider(source, config);
-
         try {
+            KeyProvider provider = createProvider(source, config);
             KeyRecord record = provider.resolve(ref);
             return record.material();
-        } catch (KeyProviderException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Keychain resolution failed for source '" + source + "': " + e.getMessage(), e);
         }
     }
 
-    private static KeyProvider createProvider(String source, Map<String, Object> config) {
+    private static KeyProvider createProvider(String source, Map<String, Object> config) throws Exception {
         switch (source) {
             case "vault": {
                 String addr = firstNonNull((String) config.get("addr"), System.getenv("VAULT_ADDR"), "http://127.0.0.1:8200");
