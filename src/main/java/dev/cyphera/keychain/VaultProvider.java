@@ -32,6 +32,7 @@ public final class VaultProvider implements KeyProvider {
         VaultConfig config = new VaultConfig()
                 .address(address)
                 .token(token)
+                .engineVersion(1)
                 .build();
         this.vault = Vault.create(config);
         this.mount = mount;
