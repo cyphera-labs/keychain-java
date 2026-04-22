@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @EnabledIfEnvironmentVariable(named = "VAULT_ADDR", matches = ".+")
 class VaultIntegrationTest {
 
-    private static final String MATERIAL_HEX = "aabbccdd".repeat(8);
+    private static final String MATERIAL_HEX = "aabbccddaabbccddaabbccddaabbccddaabbccddaabbccddaabbccddaabbccdd";
 
     @Test
     void resolve_returnsActiveRecord_againstVaultDev() throws Exception {

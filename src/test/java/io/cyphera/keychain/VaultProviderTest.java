@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 class VaultProviderTest {
 
-    private static final String MATERIAL_HEX = "aa".repeat(32);
+    private static final String MATERIAL_HEX = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     private static final byte[] MATERIAL_BYTES;
 
     static {
