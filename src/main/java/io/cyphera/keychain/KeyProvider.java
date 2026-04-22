@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 /**
  * Abstraction for resolving cryptographic key records.

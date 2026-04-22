@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 /**
  * Thrown when a key ref exists but none of its versions has {@link Status#ACTIVE} status.

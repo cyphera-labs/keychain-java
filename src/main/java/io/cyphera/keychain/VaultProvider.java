@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import io.github.jopenlibs.vault.Vault;
 import io.github.jopenlibs.vault.VaultConfig;
@@ -6,8 +6,7 @@ import io.github.jopenlibs.vault.VaultException;
 import io.github.jopenlibs.vault.response.LogicalResponse;
 
 import java.util.Base64;
-import java.util.HexFormat;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -44,12 +43,22 @@ public final class VaultProvider implements KeyProvider {
         this.mount = mount;
     }
 
+    private static byte[] decodeHex(String hex) {
+        int len = hex.length();
+        byte[] out = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            out[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                    + Character.digit(hex.charAt(i + 1), 16));
+        }
+        return out;
+    }
+
     private static byte[] decodeBytes(String value) {
-        String s = value.strip();
+        String s = value.trim();
         if (s.length() % 2 == 0 && s.matches("[0-9a-fA-F]+")) {
             try {
-                return HexFormat.of().parseHex(s);
-            } catch (IllegalArgumentException ignored) {
+                return decodeHex(s);
+            } catch (Exception ignored) {
             }
         }
         try {
@@ -95,28 +104,32 @@ public final class VaultProvider implements KeyProvider {
         if (vStr != null) {
             try { version = Integer.parseInt(vStr); } catch (NumberFormatException ignored) {}
         }
-        String statusStr = data.getOrDefault("status", "active").toLowerCase();
-        Status status = switch (statusStr) {
-            case "deprecated" -> Status.DEPRECATED;
-            case "disabled" -> Status.DISABLED;
-            default -> Status.ACTIVE;
-        };
-        String algorithm = data.getOrDefault("algorithm", "adf1");
-        String materialStr = data.getOrDefault("material", "");
+        String statusStr = data.containsKey("status") ? data.get("status").toLowerCase() : "active";
+        Status status;
+        if ("deprecated".equals(statusStr)) {
+            status = Status.DEPRECATED;
+        } else if ("disabled".equals(statusStr)) {
+            status = Status.DISABLED;
+        } else {
+            status = Status.ACTIVE;
+        }
+        String algorithm = data.containsKey("algorithm") ? data.get("algorithm") : "adf1";
+        String materialStr = data.containsKey("material") ? data.get("material") : "";
         byte[] material = materialStr.isEmpty() ? new byte[0] : decodeBytes(materialStr);
         String tweakStr = data.get("tweak");
         byte[] tweak = tweakStr != null && !tweakStr.isEmpty() ? decodeBytes(tweakStr) : null;
-        return new KeyRecord(ref, version, status, algorithm, material, tweak, Map.of(), null);
+        return new KeyRecord(ref, version, status, algorithm, material, tweak,
+                Collections.<String, String>emptyMap(), null);
     }
 
-    private List<KeyRecord> parseRecords(String ref, Map<String, String> data) {
-        return List.of(parseOne(ref, data));
+    private java.util.List<KeyRecord> parseRecords(String ref, Map<String, String> data) {
+        return Collections.singletonList(parseOne(ref, data));
     }
 
     @Override
     public KeyRecord resolve(String ref) throws KeyProviderException {
         Map<String, String> data = readData(ref);
-        List<KeyRecord> records = parseRecords(ref, data);
+        java.util.List<KeyRecord> records = parseRecords(ref, data);
         return records.stream()
                 .filter(r -> r.status() == Status.ACTIVE)
                 .max(java.util.Comparator.comparingInt(KeyRecord::version))
@@ -126,7 +139,7 @@ public final class VaultProvider implements KeyProvider {
     @Override
     public KeyRecord resolveVersion(String ref, int version) throws KeyProviderException {
         Map<String, String> data = readData(ref);
-        List<KeyRecord> records = parseRecords(ref, data);
+        java.util.List<KeyRecord> records = parseRecords(ref, data);
         for (KeyRecord r : records) {
             if (r.version() == version) {
                 if (r.status() == Status.DISABLED) {

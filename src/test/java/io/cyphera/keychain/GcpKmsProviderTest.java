@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import com.google.cloud.kms.v1.EncryptRequest;
 import com.google.cloud.kms.v1.EncryptResponse;
@@ -26,7 +26,7 @@ class GcpKmsProviderTest {
 
     @Test
     void resolve_returnsActiveRecord() throws Exception {
-        var provider = new GcpKmsProvider(KEY_NAME, mockClient());
+        GcpKmsProvider provider = new GcpKmsProvider(KEY_NAME, mockClient());
         KeyRecord rec = provider.resolve("customer-primary");
         assertEquals("customer-primary", rec.ref());
         assertEquals(1, rec.version());
@@ -36,8 +36,8 @@ class GcpKmsProviderTest {
 
     @Test
     void resolve_cachesResult() throws Exception {
-        var client = mockClient();
-        var provider = new GcpKmsProvider(KEY_NAME, client);
+        KeyManagementServiceClient client = mockClient();
+        GcpKmsProvider provider = new GcpKmsProvider(KEY_NAME, client);
         byte[] m1 = provider.resolve("k").material();
         byte[] m2 = provider.resolve("k").material();
         assertArrayEquals(m1, m2);
@@ -46,21 +46,21 @@ class GcpKmsProviderTest {
 
     @Test
     void resolve_encryptFails_throwsKeyNotFoundException() {
-        var client = mock(KeyManagementServiceClient.class);
+        KeyManagementServiceClient client = mock(KeyManagementServiceClient.class);
         when(client.encrypt(any(EncryptRequest.class))).thenThrow(new RuntimeException("API error"));
-        var provider = new GcpKmsProvider(KEY_NAME, client);
+        GcpKmsProvider provider = new GcpKmsProvider(KEY_NAME, client);
         assertThrows(KeyNotFoundException.class, () -> provider.resolve("bad-ref"));
     }
 
     @Test
     void resolveVersion_version1_resolves() throws Exception {
-        var provider = new GcpKmsProvider(KEY_NAME, mockClient());
+        GcpKmsProvider provider = new GcpKmsProvider(KEY_NAME, mockClient());
         assertEquals(1, provider.resolveVersion("k", 1).version());
     }
 
     @Test
     void resolveVersion_otherVersion_throws() {
-        var provider = new GcpKmsProvider(KEY_NAME, mockClient());
+        GcpKmsProvider provider = new GcpKmsProvider(KEY_NAME, mockClient());
         assertThrows(KeyNotFoundException.class, () -> provider.resolveVersion("k", 2));
     }
 }

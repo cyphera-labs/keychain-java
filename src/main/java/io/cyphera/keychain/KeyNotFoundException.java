@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 /**
  * Thrown when no key matching the requested ref (and optional version) exists.

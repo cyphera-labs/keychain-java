@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 /**
  * Thrown when a key record is found but its status is {@link Status#DISABLED}.

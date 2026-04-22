@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import com.azure.core.credential.TokenCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
@@ -10,6 +10,7 @@ import com.azure.security.keyvault.keys.cryptography.models.KeyWrapAlgorithm;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,7 +71,8 @@ public final class AzureKvProvider implements KeyProvider {
             material = wrapNewKey(ref);
             plaintextCache.put(ref, material);
         }
-        return new KeyRecord(ref, 1, Status.ACTIVE, "aes256", material, null, Map.of(), null);
+        return new KeyRecord(ref, 1, Status.ACTIVE, "aes256", material, null,
+                Collections.<String, String>emptyMap(), null);
     }
 
     @Override

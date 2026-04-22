@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import java.util.Map;
 
@@ -41,13 +41,13 @@ public final class KeychainResolver {
                 return new VaultProvider(addr, token, mount);
             }
             case "aws-kms": {
-                String arn = (String) config.getOrDefault("arn", "");
+                String arn = config.containsKey("arn") ? (String) config.get("arn") : "";
                 String region = firstNonNull((String) config.get("region"), System.getenv("AWS_REGION"), "us-east-1");
                 String endpoint = (String) config.get("endpoint");
                 return endpoint != null ? new AwsKmsProvider(arn, region, endpoint) : new AwsKmsProvider(arn);
             }
             case "gcp-kms": {
-                String resource = (String) config.getOrDefault("resource", "");
+                String resource = config.containsKey("resource") ? (String) config.get("resource") : "";
                 try {
                     return new GcpKmsProvider(resource);
                 } catch (Exception e) {
@@ -55,8 +55,8 @@ public final class KeychainResolver {
                 }
             }
             case "azure-kv": {
-                String vault = (String) config.getOrDefault("vault", "");
-                String keyName = (String) config.getOrDefault("key", "");
+                String vault = config.containsKey("vault") ? (String) config.get("vault") : "";
+                String keyName = config.containsKey("key") ? (String) config.get("key") : "";
                 return new AzureKvProvider("https://" + vault + ".vault.azure.net", keyName);
             }
             default:

@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.core.SdkBytes;
@@ -35,7 +35,7 @@ class AwsKmsProviderTest {
 
     @Test
     void resolve_returnsActiveRecord() throws Exception {
-        var provider = new AwsKmsProvider(KEY_ID, mockClient());
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, mockClient());
         KeyRecord rec = provider.resolve("customer-primary");
         assertEquals("customer-primary", rec.ref());
         assertEquals(1, rec.version());
@@ -45,14 +45,14 @@ class AwsKmsProviderTest {
 
     @Test
     void resolve_algorithmIsAes256() throws Exception {
-        var provider = new AwsKmsProvider(KEY_ID, mockClient());
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, mockClient());
         assertEquals("aes256", provider.resolve("k").algorithm());
     }
 
     @Test
     void resolve_cachesResult() throws Exception {
         KmsClient client = mockClient();
-        var provider = new AwsKmsProvider(KEY_ID, client);
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, client);
         provider.resolve("k");
         provider.resolve("k");
         verify(client, times(1)).generateDataKey(any(GenerateDataKeyRequest.class));
@@ -61,7 +61,7 @@ class AwsKmsProviderTest {
     @Test
     void resolve_differentRefsSeparateCalls() throws Exception {
         KmsClient client = mockClient();
-        var provider = new AwsKmsProvider(KEY_ID, client);
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, client);
         provider.resolve("key-a");
         provider.resolve("key-b");
         verify(client, times(2)).generateDataKey(any(GenerateDataKeyRequest.class));
@@ -72,19 +72,19 @@ class AwsKmsProviderTest {
         KmsClient client = mock(KmsClient.class);
         when(client.generateDataKey(any(GenerateDataKeyRequest.class)))
                 .thenThrow(KmsException.builder().message("not found").build());
-        var provider = new AwsKmsProvider(KEY_ID, client);
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, client);
         assertThrows(KeyNotFoundException.class, () -> provider.resolve("bad-ref"));
     }
 
     @Test
     void resolveVersion_version1_resolves() throws Exception {
-        var provider = new AwsKmsProvider(KEY_ID, mockClient());
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, mockClient());
         assertEquals(1, provider.resolveVersion("k", 1).version());
     }
 
     @Test
     void resolveVersion_otherVersion_throwsKeyNotFoundException() {
-        var provider = new AwsKmsProvider(KEY_ID, mockClient());
+        AwsKmsProvider provider = new AwsKmsProvider(KEY_ID, mockClient());
         assertThrows(KeyNotFoundException.class, () -> provider.resolveVersion("k", 2));
     }
 }

@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import java.util.ArrayList;
 import java.util.Arrays;

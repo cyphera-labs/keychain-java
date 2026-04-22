@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import com.google.cloud.kms.v1.EncryptRequest;
 import com.google.cloud.kms.v1.KeyManagementServiceClient;
@@ -6,6 +6,7 @@ import com.google.protobuf.ByteString;
 
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +59,8 @@ public final class GcpKmsProvider implements KeyProvider {
             material = wrapNewKey(ref);
             plaintextCache.put(ref, material);
         }
-        return new KeyRecord(ref, 1, Status.ACTIVE, "aes256", material, null, Map.of(), null);
+        return new KeyRecord(ref, 1, Status.ACTIVE, "aes256", material, null,
+                Collections.<String, String>emptyMap(), null);
     }
 
     @Override

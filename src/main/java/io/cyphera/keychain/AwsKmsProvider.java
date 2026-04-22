@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.kms.model.GenerateDataKeyResponse;
 import software.amazon.awssdk.services.kms.model.KmsException;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,10 +49,11 @@ public final class AwsKmsProvider implements KeyProvider {
                     GenerateDataKeyRequest.builder()
                             .keyId(keyId)
                             .keySpec(DataKeySpec.AES_256)
-                            .encryptionContext(Map.of("cyphera:ref", ref))
+                            .encryptionContext(Collections.singletonMap("cyphera:ref", ref))
                             .build());
             byte[] material = response.plaintext().asByteArray();
-            return new KeyRecord(ref, 1, Status.ACTIVE, "aes256", material, null, Map.of(), null);
+            return new KeyRecord(ref, 1, Status.ACTIVE, "aes256", material, null,
+                    Collections.<String, String>emptyMap(), null);
         } catch (KmsException e) {
             throw new KeyNotFoundException("Key not found: " + ref, e);
         }

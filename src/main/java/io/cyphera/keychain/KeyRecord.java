@@ -1,8 +1,9 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -53,8 +54,8 @@ public final class KeyRecord {
                 material.length);
         this.tweak = (tweak != null) ? Arrays.copyOf(tweak, tweak.length) : null;
         this.metadata = (metadata != null)
-                ? Collections.unmodifiableMap(Map.copyOf(metadata))
-                : Collections.emptyMap();
+                ? Collections.unmodifiableMap(new HashMap<>(metadata))
+                : Collections.<String, String>emptyMap();
         this.createdAt = createdAt;
     }
 
@@ -105,7 +106,8 @@ public final class KeyRecord {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof KeyRecord other)) return false;
+        if (!(o instanceof KeyRecord)) return false;
+        KeyRecord other = (KeyRecord) o;
         return version == other.version
                 && ref.equals(other.ref)
                 && status == other.status

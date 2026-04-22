@@ -1,8 +1,8 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import java.time.Instant;
 import java.util.Base64;
-import java.util.HexFormat;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -52,7 +52,7 @@ public final class EnvProvider implements KeyProvider {
         String normalizedRef = normalizeRef(ref);
         String keyVar = prefix + "_" + normalizedRef + "_KEY";
         String rawKey = envLookup.apply(keyVar);
-        if (rawKey == null || rawKey.isBlank()) {
+        if (rawKey == null || rawKey.trim().isEmpty()) {
             throw new KeyNotFoundException(
                     "Environment variable not found: " + keyVar);
         }
@@ -62,11 +62,12 @@ public final class EnvProvider implements KeyProvider {
         String tweakVar = prefix + "_" + normalizedRef + "_TWEAK";
         String rawTweak = envLookup.apply(tweakVar);
         byte[] tweak = null;
-        if (rawTweak != null && !rawTweak.isBlank()) {
+        if (rawTweak != null && !rawTweak.trim().isEmpty()) {
             tweak = decodeBytes(rawTweak, tweakVar);
         }
 
-        return new KeyRecord(ref, 1, Status.ACTIVE, "env", material, tweak, Map.of(), Instant.now());
+        return new KeyRecord(ref, 1, Status.ACTIVE, "env", material, tweak,
+                Collections.<String, String>emptyMap(), Instant.now());
     }
 
     @Override
@@ -90,6 +91,22 @@ public final class EnvProvider implements KeyProvider {
     }
 
     /**
+     * Decodes a hex string to bytes.
+     *
+     * @param hex hex-encoded string
+     * @return decoded bytes
+     */
+    private static byte[] decodeHex(String hex) {
+        int len = hex.length();
+        byte[] out = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            out[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                    + Character.digit(hex.charAt(i + 1), 16));
+        }
+        return out;
+    }
+
+    /**
      * Decodes a hex or base64 string to bytes.
      *
      * <p>Tries hex first, then standard base64, then URL-safe base64.</p>
@@ -102,8 +119,8 @@ public final class EnvProvider implements KeyProvider {
     static byte[] decodeBytes(String value, String varName) throws KeyProviderException {
         // Try hex first
         try {
-            return HexFormat.of().parseHex(value);
-        } catch (IllegalArgumentException ignored) {
+            return decodeHex(value);
+        } catch (Exception ignored) {
             // not hex
         }
 

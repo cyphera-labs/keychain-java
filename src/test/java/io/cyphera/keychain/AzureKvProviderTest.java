@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import com.azure.core.credential.TokenCredential;
 import com.azure.security.keyvault.keys.KeyClient;
@@ -13,18 +13,18 @@ class AzureKvProviderTest {
 
     @Test
     void resolveVersion_otherVersion_throwsKeyNotFoundException() {
-        var keyClient = mock(KeyClient.class);
-        var cred = mock(TokenCredential.class);
-        var provider = new AzureKvProvider(keyClient, KEY_NAME, cred);
+        KeyClient keyClient = mock(KeyClient.class);
+        TokenCredential cred = mock(TokenCredential.class);
+        AzureKvProvider provider = new AzureKvProvider(keyClient, KEY_NAME, cred);
         assertThrows(KeyNotFoundException.class, () -> provider.resolveVersion("k", 2));
     }
 
     @Test
     void resolve_keyClientThrows_throwsKeyNotFoundException() {
-        var keyClient = mock(KeyClient.class);
+        KeyClient keyClient = mock(KeyClient.class);
         when(keyClient.getKey(KEY_NAME)).thenThrow(new RuntimeException("not found"));
-        var cred = mock(TokenCredential.class);
-        var provider = new AzureKvProvider(keyClient, KEY_NAME, cred);
+        TokenCredential cred = mock(TokenCredential.class);
+        AzureKvProvider provider = new AzureKvProvider(keyClient, KEY_NAME, cred);
         assertThrows(KeyNotFoundException.class, () -> provider.resolve("bad-ref"));
     }
 }

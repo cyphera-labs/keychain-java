@@ -1,7 +1,8 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,12 +13,13 @@ class MemoryProviderTest {
             9, 10, 11, 12, 13, 14, 15, 16};
 
     private static KeyRecord record(String ref, int version, Status status) {
-        return new KeyRecord(ref, version, status, "adf1", MATERIAL, null, Map.of(), null);
+        return new KeyRecord(ref, version, status, "adf1", MATERIAL, null,
+                Collections.<String, String>emptyMap(), null);
     }
 
     @Test
     void resolve_returnsHighestActiveVersion() throws KeyProviderException {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.DEPRECATED),
                 record("my-key", 2, Status.ACTIVE),
                 record("my-key", 3, Status.ACTIVE)
@@ -29,7 +31,7 @@ class MemoryProviderTest {
 
     @Test
     void resolveVersion_returnsSpecificVersion() throws KeyProviderException {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.DEPRECATED),
                 record("my-key", 2, Status.ACTIVE)
         );
@@ -40,7 +42,7 @@ class MemoryProviderTest {
 
     @Test
     void resolveVersion_onDisabledKey_throwsKeyDisabledException() {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.DISABLED)
         );
         assertThrows(KeyDisabledException.class,
@@ -49,7 +51,7 @@ class MemoryProviderTest {
 
     @Test
     void resolveVersion_onUnknownRef_throwsKeyNotFoundException() {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.ACTIVE)
         );
         assertThrows(KeyNotFoundException.class,
@@ -58,7 +60,7 @@ class MemoryProviderTest {
 
     @Test
     void resolve_withNoActiveVersions_throwsNoActiveKeyException() {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.DEPRECATED),
                 record("my-key", 2, Status.DISABLED)
         );
@@ -68,14 +70,14 @@ class MemoryProviderTest {
 
     @Test
     void resolve_onUnknownRef_throwsKeyNotFoundException() {
-        var provider = new MemoryProvider();
+        MemoryProvider provider = new MemoryProvider();
         assertThrows(KeyNotFoundException.class,
                 () -> provider.resolve("missing-key"));
     }
 
     @Test
     void add_insertsRecord() throws KeyProviderException {
-        var provider = new MemoryProvider();
+        MemoryProvider provider = new MemoryProvider();
         provider.add(record("new-key", 1, Status.ACTIVE));
         KeyRecord result = provider.resolve("new-key");
         assertEquals("new-key", result.ref());
@@ -84,7 +86,7 @@ class MemoryProviderTest {
 
     @Test
     void add_replacesExistingVersionWithSameNumber() throws KeyProviderException {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.DEPRECATED)
         );
         provider.add(record("my-key", 1, Status.ACTIVE));
@@ -94,7 +96,7 @@ class MemoryProviderTest {
 
     @Test
     void resolve_skipsDeprecatedAndReturnsActive() throws KeyProviderException {
-        var provider = new MemoryProvider(
+        MemoryProvider provider = new MemoryProvider(
                 record("my-key", 1, Status.ACTIVE),
                 record("my-key", 2, Status.DEPRECATED)
         );

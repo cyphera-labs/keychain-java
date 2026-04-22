@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +49,7 @@ public final class FileProvider implements KeyProvider {
      * @throws KeyProviderException if the file cannot be read or parsed
      */
     public FileProvider(String path) throws KeyProviderException {
-        this(Path.of(path));
+        this(Paths.get(path));
     }
 
     /**
@@ -112,14 +114,14 @@ public final class FileProvider implements KeyProvider {
 
     private static KeyRecord toKeyRecord(KeyFileEntry entry, String filePath)
             throws KeyProviderException {
-        if (entry.ref == null || entry.ref.isBlank()) {
+        if (entry.ref == null || entry.ref.trim().isEmpty()) {
             throw new KeyProviderException("Key entry missing 'ref' in file: " + filePath);
         }
-        if (entry.algorithm == null || entry.algorithm.isBlank()) {
+        if (entry.algorithm == null || entry.algorithm.trim().isEmpty()) {
             throw new KeyProviderException(
                     "Key entry ref='" + entry.ref + "' missing 'algorithm' in file: " + filePath);
         }
-        if (entry.material == null || entry.material.isBlank()) {
+        if (entry.material == null || entry.material.trim().isEmpty()) {
             throw new KeyProviderException(
                     "Key entry ref='" + entry.ref + "' missing 'material' in file: " + filePath);
         }
@@ -128,16 +130,16 @@ public final class FileProvider implements KeyProvider {
         byte[] material = EnvProvider.decodeBytes(entry.material,
                 "material for ref '" + entry.ref + "'");
         byte[] tweak = null;
-        if (entry.tweak != null && !entry.tweak.isBlank()) {
+        if (entry.tweak != null && !entry.tweak.trim().isEmpty()) {
             tweak = EnvProvider.decodeBytes(entry.tweak, "tweak for ref '" + entry.ref + "'");
         }
 
         Map<String, String> metadata = (entry.metadata != null)
-                ? Map.copyOf(entry.metadata)
-                : Map.of();
+                ? Collections.unmodifiableMap(new HashMap<>(entry.metadata))
+                : Collections.<String, String>emptyMap();
 
         Instant createdAt = null;
-        if (entry.createdAt != null && !entry.createdAt.isBlank()) {
+        if (entry.createdAt != null && !entry.createdAt.trim().isEmpty()) {
             try {
                 createdAt = Instant.parse(entry.createdAt);
             } catch (Exception e) {
@@ -153,16 +155,20 @@ public final class FileProvider implements KeyProvider {
 
     private static Status parseStatus(String raw, String ref, String filePath)
             throws KeyProviderException {
-        if (raw == null || raw.isBlank()) {
+        if (raw == null || raw.trim().isEmpty()) {
             return Status.ACTIVE;
         }
-        return switch (raw.toLowerCase()) {
-            case "active" -> Status.ACTIVE;
-            case "deprecated" -> Status.DEPRECATED;
-            case "disabled" -> Status.DISABLED;
-            default -> throw new KeyProviderException(
+        String lower = raw.toLowerCase();
+        if ("active".equals(lower)) {
+            return Status.ACTIVE;
+        } else if ("deprecated".equals(lower)) {
+            return Status.DEPRECATED;
+        } else if ("disabled".equals(lower)) {
+            return Status.DISABLED;
+        } else {
+            throw new KeyProviderException(
                     "Unknown status '" + raw + "' for ref '" + ref + "' in file: " + filePath);
-        };
+        }
     }
 
     // --- Jackson-mapped DTOs ---

@@ -1,4 +1,4 @@
-package dev.cyphera.keychain;
+package io.cyphera.keychain;
 
 /**
  * Base checked exception for all key-provider errors.
