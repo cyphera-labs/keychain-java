@@ -1,9 +1,9 @@
 package io.cyphera.keychain;
 
-import io.github.jopenlibs.vault.Vault;
-import io.github.jopenlibs.vault.VaultConfig;
-import io.github.jopenlibs.vault.VaultException;
-import io.github.jopenlibs.vault.response.LogicalResponse;
+import com.bettercloud.vault.Vault;
+import com.bettercloud.vault.VaultConfig;
+import com.bettercloud.vault.VaultException;
+import com.bettercloud.vault.response.LogicalResponse;
 
 import java.util.Base64;
 import java.util.Collections;
@@ -79,7 +79,7 @@ public final class VaultProvider implements KeyProvider {
                 throw new KeyNotFoundException("Key not found: " + ref);
             }
             // KV v2 nests secret data under "data" key; the outer map also has "metadata"
-            // The jopenlibs driver flattens the JSON into string values, so "data" contains
+            // The vault driver flattens the JSON into string values, so "data" contains
             // the JSON string of the inner map. Try to parse it if present.
             if (outerData.containsKey("data") && !outerData.containsKey("material")) {
                 try {
