@@ -96,12 +96,19 @@ public final class EnvProvider implements KeyProvider {
      * @param hex hex-encoded string
      * @return decoded bytes
      */
-    private static byte[] decodeHex(String hex) {
+    static byte[] decodeHex(String hex) {
         int len = hex.length();
+        if (len % 2 != 0) {
+            throw new IllegalArgumentException("odd length");
+        }
         byte[] out = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
-            out[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
+            int hi = Character.digit(hex.charAt(i), 16);
+            int lo = Character.digit(hex.charAt(i + 1), 16);
+            if (hi == -1 || lo == -1) {
+                throw new IllegalArgumentException("invalid hex at index " + i);
+            }
+            out[i / 2] = (byte) ((hi << 4) + lo);
         }
         return out;
     }
