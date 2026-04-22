@@ -191,4 +191,4 @@ var provider = new VaultProvider("http://vault.example.com:8200", "s.mytoken", "
 
 ## License
 
-MIT
+Apache 2.0
